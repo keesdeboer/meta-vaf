@@ -1,0 +1,13 @@
+[Unit]
+Description=Update DNS server when interface changes
+BindsTo=connman.service
+After=connman.service
+ConditionPathExists=|/application/pem3
+
+[Service]
+Type=oneshot
+WorkingDirectory=/application/pem3
+ExecStart=/usr/bin/node DnsUpdate.js
+
+[Install]
+WantedBy=multi-user.target
