@@ -1,25 +1,27 @@
 #Angstrom bootstrap image
 require console-image-vaf-base.bb
 
-#DEPENDS += "packagegroup-base-extended \
+DEPENDS += "packagegroup-base-extended \
 	   "
 IMAGE_INSTALL += " \
-	nodejs-dev \
+	packagegroup-base-extended \
 	xz \
-	libmodbus \
-	pem3-scripts \
+	bash \
+	bc \
+	pem3-flasher-scripts \
+	e2fsprogs-mke2fs \
+	dosfstools \
+	tar \
 "
 ROOTFS_POSTPROCESS_COMMAND += "set_root_passwd;"
-ROOTFS_POSTPROCESS_COMMAND += "create_symlinks;"
-#	packagegroup-base-extended \
 
 create_symlinks() {
   #!/bin/sh
   # post installation script
- 	ln -sf /database/hostname ${IMAGE_ROOTFS}/etc/hostname
-	ln -sf /database/interfaces ${IMAGE_ROOTFS}/etc/network/interfaces
-	ln -sf /database/zone	${IMAGE_ROOTFS}/etc/zone
-	ln -sf /database/resolv.conf	${IMAGE_ROOTFS}/etc/resolv.conf
+ 	#ln -sf /database/hostname ${IMAGE_ROOTFS}/etc/hostname
+	#ln -sf /database/interfaces ${IMAGE_ROOTFS}/etc/network/interfaces
+	#ln -sf /database/zone	${IMAGE_ROOTFS}/etc/zone
+	#ln -sf /database/resolv.conf	${IMAGE_ROOTFS}/etc/resolv.conf
 }
 
 #created pwd using $openssl passwd -1 -salt xyz  yourpass
@@ -30,4 +32,4 @@ set_root_passwd() {
    mv ${IMAGE_ROOTFS}/etc/shadow.new ${IMAGE_ROOTFS}/etc/shadow ;
 }
 
-export IMAGE_BASENAME = "console-image-vaf"
+export IMAGE_BASENAME = "flasher-image-vaf"

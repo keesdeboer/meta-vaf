@@ -7,8 +7,10 @@ IMAGE_INSTALL += " \
 	packagegroup-base-extended \
 	nodejs-dev \
 	xz \
+	tar \
 	libmodbus \
 	pem3-scripts \
+	bash \
 "
 ROOTFS_POSTPROCESS_COMMAND += "set_root_passwd;"
 ROOTFS_POSTPROCESS_COMMAND += "create_symlinks;"

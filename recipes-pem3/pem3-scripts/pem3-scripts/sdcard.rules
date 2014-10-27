@@ -1,1 +1,1 @@
-ACTION=="add",SUBSYSTEM=="block",KERNEL=="mmcblk1p1",RUN+="/usr/local/bin/software_update.sh"
+ACTION=="add",SUBSYSTEM=="block",KERNEL=="mmcblk1p1",RUN+="/usr/bin/software_update.sh"

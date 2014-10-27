@@ -9,12 +9,14 @@ V-install libmodbus automatically
 V-set password during build
 V-modify 55-resolv.conf script -> not needed
 -create necessary files for dns settings
-#-usb ethernet
+-usb ethernet
+-add /database/log partition to emmc.sh script in flasher_image
+-versioenummber
 
 # volatiles in pem3_scripts, what is that
 # TODO:
-#-versioenummber
-#add /database/log partition to emmc.sh script in flasher_image
-#kernel rtpatch
-#
+#-kernel rtpatch
+#-md5sum over angstrom rootfs
+#-provide version check
+#-flashen / software update via usb of usb ethernet
 
