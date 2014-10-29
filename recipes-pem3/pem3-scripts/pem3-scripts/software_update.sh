@@ -18,21 +18,24 @@ UPDATED_SETTINGS=false
 UPDATED_FIRMWARE=false
 
 function backup_settings() {
+	DESTINATION=$1
 	DATETIME=$(date +"%Y%m%d%H%M%S")
-	mkdir -p $SD_DIR/old_settings$DATETIME
-	cp /database/database.csv $SD_DIR/old_settings$DATETIME/
-	cp -r /database/log $SD_DIR/old_settings$DATETIME/
-	cp $FIRMWARE_LOG $SD_DIR/old_settings$DATETIME/
+	mkdir -p $DESTINATION/old_settings$DATETIME
+	cp /database/database.csv $DESTINATION/old_settings$DATETIME/
+	cp -r /database/log $DESTINATION/old_settings$DATETIME/
+	cp $FIRMWARE_LOG $DESTINATION/old_settings$DATETIME/
 	sync
 }
 
 function backup_firmware_log() {
-	cp $FIRMWARE_LOG $SD_DIR/old_settings$DATETIME/
+	DESTINATION=$1
+	cp $FIRMWARE_LOG $DESTINATION/old_settings$DATETIME/
 	sync
 }
 
 function update_settings() {
-	NEW_SETTINGS=$(find "${SD_DIR}/settings" -name ${SETTINGS_FILE} | head -1)
+	SOURCE_DIR=$1
+	NEW_SETTINGS=$(find "${SOURCE_DIR}/settings" -name ${SETTINGS_FILE} | head -1)
 	if [ -n "$NEW_SETTINGS" ]; then #found new settings
 		echo "found new settings $NEW_SETTINGS" >> $FIRMWARE_LOG
 		
@@ -55,7 +58,8 @@ function update_settings() {
 function check_firmware_version() {
 	OLD_VERSION=0
 	NEW_VERSION=0
-	NEW_FIRMWARE=$(find "${SD_DIR}/firmware" -name ${FIRMWARE_FILE} | head -1)
+	SOURCE_DIR=$1
+	NEW_FIRMWARE=$(find "${SOURCE_DIR}/firmware" -name ${FIRMWARE_FILE} | head -1)
 	if [ -n "$NEW_FIRMWARE" ]; then
 		echo "found new firmware $NEW_FIRMWARE" >> $FIRMWARE_LOG
 		
@@ -85,14 +89,14 @@ function check_firmware_version() {
 	fi
 }
 
-function upgrade_firmware() {
+function install_firmware() {
 	#stop application
 	
 	if [ -e "/lib/systemd/system/pem3.service" ]; then
 		systemctl stop pem3.service
 	fi
 	#erase partition
-	mount -o remount,rw /dev/mmcblk0p3	
+	mount -o remount,rw /dev/mmcblk0p2	
 	
 #############create new application
 	
@@ -129,7 +133,23 @@ function upgrade_firmware() {
 	#remount
 	sync
 	sleep 2
-	mount -o remount,ro /dev/mmcblk0p3
+	mount -o remount,ro /dev/mmcblk0p2
+}
+
+function upgrade_firmware()
+{
+	#find new software	
+	SOURCE_DIR=$1
+	if [ -e "${SOURCE_DIR}/firmware" ]; then
+		echo "update-firmware"
+		check_firmware_version $SOURCE_DIR
+		if [ "$result" == "true" ]; then
+			echo "Upgrading software from (v$OLD_VERSION) to (v$NEW_VERSION)" >> $FIRMWARE_LOG
+			install_firmware $SOURCE_DIR
+		else
+			echo "Software provided (v$NEW_VERSION) is not newer than current (v$OLD_VERSION)" >> $FIRMWARE_LOG
+		fi
+	fi	
 }
 
 now=$(date +"%m/%d/%Y %H:%M:%S")
@@ -139,32 +159,40 @@ if [ -b $SD_DEVICE ]; then
 	mkdir -p ${SD_DIR}
 	mount ${SD_DEVICE} ${SD_DIR} -o noatime
 	
-	backup_settings
-	
-	#find new software	
-	if [ -e "${SD_DIR}/firmware" ]; then
-		echo "update-firmware"
-		check_firmware_version
-		if [ "$result" == "true" ]; then
-			echo "Upgrading software from (v$OLD_VERSION) to (v$NEW_VERSION)" >> $FIRMWARE_LOG
-			upgrade_firmware
-		else
-			echo "Software provided (v$NEW_VERSION) is not newer than current (v$OLD_VERSION)" >> $FIRMWARE_LOG
-		fi
-	fi	
+	backup_settings $SD_DIR
+	upgrade_firmware $SD_DIR
 	
 	#find new settings
 	if [ -e "${SD_DIR}/settings" ]; then
 		echo "update-settings"
-		update_settings
+		update_settings $SD_DIR
 	fi
 
 	#copy update log to SD card
-	backup_firmware_log
+	backup_firmware_log $SD_DIR
 	sleep 3
 	sync
 	umount ${SD_DEVICE}
-else 
+elif [ -b $USB_DEVICE ]; then
+	#mount
+	echo "$now found usb stick" >> $FIRMWARE_LOG
+	mkdir -p ${USB_DIR}
+	mount ${USB_DEVICE} ${USB_DIR} -o noatime
+	backup_settings $USB_DIR
+	upgrade_firmware $USB_DIR
+	
+	#find new settings
+	if [ -e "${USB_DIR}/settings" ]; then
+		echo "update-settings"
+		update_settings $USB_DIR
+	fi
+
+	#copy update log to SD card
+	backup_firmware_log $USB_DIR
+	sleep 3
+	sync
+	umount ${USB_DEVICE}
+else
 	echo "$now sd card contains no mmcblk1p1" >> $FIRMWARE_LOG
 	ERROR="${ERROR}, invalid card"
 fi

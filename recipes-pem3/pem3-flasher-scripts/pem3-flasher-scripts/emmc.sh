@@ -11,13 +11,15 @@ PART1MOUNT="/media/1"
 PART2MOUNT="/media/2"
 #add two extra application specificpartitions
 PART3MOUNT="/media/3"
-PART4MOUNT="/media/4"
+#PART4MOUNT="/media/4"
 BOOTMOUNT="/media/boot"
 
 HOSTARCH="$(uname -m)"
 
 MLOMD5="ef2315d2f973f82e0a0dd068ef451180"
 UBOOTMD5="23528c750e1edc68c2be3a7557a87478"
+UIMAGEMD5=""
+ANGSTROMMD5=""
 
 blockdev --flushbufs /dev/mmcblk1
 
@@ -29,77 +31,65 @@ echo "Mounting partitions"
 mkdir -p ${PART1MOUNT}
 mkdir -p ${PART2MOUNT}
 mkdir -p ${PART3MOUNT}
-mkdir -p ${PART4MOUNT}
+#mkdir -p ${PART4MOUNT}
 mkdir -p ${BOOTMOUNT}
 mount /dev/mmcblk1p1 ${PART1MOUNT} -o sync
 mount /dev/mmcblk1p2 ${PART2MOUNT} -o async,noatime
 mount /dev/mmcblk1p3 ${PART3MOUNT} -o async,noatime
-mount /dev/mmcblk1p4 ${PART4MOUNT} -o async,noatime
+#mount /dev/mmcblk1p4 ${PART4MOUNT} -o async,noatime
 mount /dev/mmcblk0p1 ${BOOTMOUNT} -o async,noatime
 
-mkdir -p $PART4MOUNT/log
+mkdir -p $PART3MOUNT/log
 
 echo "Copying uImage + MLO + uEnv.txt files"
-cp ${BOOTMOUNT}/MLO ${BOOTMOUNT}/uEnv.txt ${BOOTMOUNT}/uImage_vaf ${PART1MOUNT}
-ln -s uImage_vaf ${PART1MOUNT}/uImage
+cp ${BOOTMOUNT}/MLO ${BOOTMOUNT}/uEnv.txt ${BOOTMOUNT}/u-boot.img ${PART1MOUNT}
 echo ${ANGSTROM_VERSION} > ${PART1MOUNT}/angstrom_version.txt
-echo ${ANGSTROM_VERSION} > ${PART2MOUNT}/boot/angstrom_version.txt
+
 sync
 blockdev --flushbufs /dev/mmcblk1
 
-#Kees Kwekkeboom: copy Angstrom to partition 4
+#Kees Kwekkeboom: copy Angstrom to partition 2
 echo "Extracting rootfs"
-if [ -e ${BOOTMOUNT}/linux/console-image-vaf.tar.xz ]; then
-	tar -xJf ${BOOTMOUNT}/linux/console-image-vaf.tar.xz -C ${PART2MOUNT}
+if [ -f ${BOOTMOUNT}/linux/console-image*.tar.xz ]; then
+	tar -xJf ${BOOTMOUNT}/linux/console-image*.tar.xz -C ${PART2MOUNT} >> /dev/null;
 else
 	ERROR="${ERROR}, no rootfs found";  
 fi
+
+echo "Copying kernel"
+cp /boot/uImage_vaf ${PART2MOUNT}/boot
+ln -sf uImage_vaf ${PART2MOUNT}/boot/uImage
+echo ${ANGSTROM_VERSION} > ${PART2MOUNT}/boot/angstrom_version.txt
+
+echo "Initialize interfaces"
+cp /etc/network/interfaces ${PART3MOUNT}
+
+echo "Set default hostname"
+echo "SPU3" >> ${PART3MOUNT}/hostname
+
+echo "Set default zone"
+echo ".local" >> ${PART3MOUNT}/zone
 
 if [ "${HOSTARCH}" = "armv7l" ] ; then
 
 	echo "Generating machine ID"
 	systemd-nspawn -D ${PART2MOUNT} /bin/systemd-machine-id-setup
-
-#	echo "Running Postinsts"
-#	cpufreq-set -g performance
-#	systemd-nspawn -D ${PART2MOUNT} /usr/bin/opkg-cl configure #really needed to fake first boot with opkg? Takes long time (Kees Kwekkeboom)
-#	cpufreq-set -g ondemand
-
-	# Hack to get some space back
-#	systemd-nspawn -D ${PART2MOUNT} /usr/bin/opkg-cl remove db-doc --force-depends
-
- # { echo rend; echo rend; } | chroot ${PART2MOUNT} /usr/bin/passwd
 	chroot ${PART2MOUNT} dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
-
-
 	#echo "Setting timezone to Europe/Paris"
 	#systemd-nspawn -D ${PART2MOUNT} /usr/bin/timedatectl set-timezone Europe/Paris
 
 fi
-
-#rm -f ${PART2MOUNT}/etc/pam.d/gdm-autologin
-
-#rm -f ${PART2MOUNT}/etc/systemd/system/multi-user.target.wants/xinput-calibrator.service
-#rm -f ${PART2MOUNT}/etc/systemd/system/multi-user.target.wants/busybox*
-#ln -s /dev/null ${PART2MOUNT}/etc/systemd/system/xinetd.service
-
-#touch ${PART2MOUNT}/etc/default/locale
-
-# Replace wallpaper
-#if [ -e ${PART2MOUNT}/usr/share/pixmaps/backgrounds/gnome/angstrom-default.jpg ] ; then
-#	cp beaglebg.jpg ${PART2MOUNT}/usr/share/pixmaps/backgrounds/gnome/angstrom-default.jpg
-#fi
 
 sync
 blockdev --flushbufs /dev/mmcblk1
 
 # verification stage
 
-if [ -e ${PART1MOUNT}/angstrom-version.txt ] ; then
-	echo "ID.txt found"
+if [ -e ${PART1MOUNT}/angstrom_version.txt ] ; then
+	echo "angstrom_version.txt found"
 else
-	echo "ID.txt missing - ERROR"
-	ERROR="ID.txt"
+	echo "angstrom_version.txt missing - ERROR"
+	ERROR="angstrom_version.txt"
 fi
 
 if [ "${MLOMD5}" != "$(md5sum ${PART1MOUNT}/MLO | awk '{print $1}')" ] ; then        
@@ -115,7 +105,7 @@ fi
 umount /dev/mmcblk1p1
 umount /dev/mmcblk1p2
 umount /dev/mmcblk1p3
-umount /dev/mmcblk1p4
+#umount /dev/mmcblk1p4
 
 # force writeback of eMMC buffers
 dd if=/dev/mmcblk1 of=/dev/null count=100000

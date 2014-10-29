@@ -30,17 +30,16 @@ echo CYLINDERS - $CYLINDERS
 #divide the 233 cilinders
 {
 echo ,9,0x0C,*
-echo ,191,,-
-echo ,30,,-
-echo ,3,,-
+echo ,50,,-
+echo ,,,-
 } | sfdisk -D -H 255 -S 63 -C $CYLINDERS $DRIVE
 
 sleep 1
 
 
-#if [ -x `which kpartx` ]; then
-#	kpartx -a -v ${DRIVE}
-#fi
+if [ -x `which kpartx` ]; then
+	kpartx -a -v ${DRIVE}
+fi
 
 # handle various device names.
 # note something like fdisk -l /dev/loop0 | egrep -E '^/dev' | cut -d' ' -f1 
@@ -74,13 +73,13 @@ if [ ! -b ${PARTITION3} ]; then
 	PARTITION3=$DEV_DIR/mapper/${DRIVE_NAME}p3
 fi
 
-PARTITION4=${DRIVE}4
-if [ ! -b ${PARTITION4} ]; then
-	PARTITION4=${DRIVE}p4
-fi
-if [ ! -b ${PARTITION4} ]; then
-	PARTITION4=$DEV_DIR/mapper/${DRIVE_NAME}p4
-fi
+#PARTITION4=${DRIVE}4
+#if [ ! -b ${PARTITION4} ]; then
+	#PARTITION4=${DRIVE}p4
+#fi
+#if [ ! -b ${PARTITION4} ]; then
+#	PARTITION4=$DEV_DIR/mapper/${DRIVE_NAME}p4
+#fi
 
 # now make partitions.
 if [ -b ${PARTITION1} ]; then
@@ -93,7 +92,7 @@ fi
 #Kees Kwekkeboom: Angstrom read-only partition, thus journalling disabled
 if [ -b ${PARITION2} ]; then
 	umount ${PARTITION2}
-	mkfs.ext4 -O ^has_journal -L "Angstrom" ${PARTITION2} 
+	mkfs.ext2 -L "Angstrom" ${PARTITION2} 
 else
 	echo "Cant find rootfs partition in /dev"
 fi
@@ -101,19 +100,19 @@ fi
 #Kees Kwekkeboom: create additional partition for the PEM3 application which will become read-only. Therefore journalling disabled
 if [ -b ${PARITION3} ]; then
 	umount ${PARTITION3}
-	mkfs.ext4 -O ^has_journal -L "PEM3" ${PARTITION3}
+	mkfs.ext4 -L "Database" ${PARTITION3}
 else
 	echo "Cant find application partition in /dev"
 fi
 
 #Kees Kwekkeboom: create additional partition for the PEM3 database. RW partition, thus journalling is more robust
-if [ -b ${PARITION4} ]; then
-	umount ${PARTITION4}
-	mkfs.ext4  -L "Storage" ${PARTITION4} 
-else
-	echo "Cant find storage partition in /dev"
-fi
-
-#if [ -x `which kpartx` ]; then
-#	kpartx -d -v ${DRIVE}
+#if [ -b ${PARITION4} ]; then
+#	umount ${PARTITION4}
+#	mkfs.ext4  -L "Storage" ${PARTITION4} 
+#else
+#	echo "Cant find storage partition in /dev"
 #fi
+
+if [ -x `which kpartx` ]; then
+	kpartx -d -v ${DRIVE}
+fi

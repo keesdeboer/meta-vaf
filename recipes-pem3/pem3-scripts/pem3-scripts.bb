@@ -8,7 +8,8 @@ SRC_URI = "file://pem3.service \
 					 file://dns_update.service \
            file://sdcard.rules \
            file://software_update.sh \
-           file://fstab \
+					 file://am335x-bone.dtb \
+					 file://am335x-boneblack.dtb \
 					"
 
 do_install() {
@@ -24,12 +25,13 @@ do_install() {
 	#overwrite udhcpc default script, and chance location of /etc/resolv.conf
 #	install -d ${D}${sysconfdir}/udhcpc.d
  # install -m 0755 ${WORKDIR}/50default ${D}${sysconfdir}/udhcpc.d/
-
-	install -d ${D}${sysconfdir}
-	install -m 0755 ${WORKDIR}/fstab ${D}${sysconfdir}/
 	
 	install -d ${D}/application
 	install -d ${D}/database
+	install -d ${D}/boot
+	
+	install -m 0755 ${WORKDIR}/am335x-bone.dtb ${D}/boot
+	install -m 0755 ${WORKDIR}/am335x-boneblack.dtb ${D}/boot
 }
 
 #NATIVE_SYSTEMD_SUPPORT = "1"
@@ -42,9 +44,11 @@ FILES_${PN} = "${base_libdir}/systemd/system/pem3.service \
 							 ${base_libdir}/systemd/system/emmc.service \
                ${bindir}/software_update.sh \
                ${sysconfdir}/udev/rules.d/sdcard.rules \
+							 /boot/am335x-bone.dtb \
+							 /boot/am335x-boneblack.dtb \
 							 /application \
 							 /database \
-							 ${sysconfdir}/fstab \
+							 /boot \
               "
 FILES_${PN}-systemd += "${systemd_unitdir}/system/"
 
