@@ -56,9 +56,9 @@ else
 	ERROR="${ERROR}, no rootfs found";  
 fi
 
-echo "Copying kernel"
-cp /boot/uImage_vaf ${PART2MOUNT}/boot
-ln -sf uImage_vaf ${PART2MOUNT}/boot/uImage
+#echo "Copying kernel"
+#cp /boot/uImage_vaf ${PART2MOUNT}/boot
+#ln -sf uImage_vaf ${PART2MOUNT}/boot/uImage
 echo ${ANGSTROM_VERSION} > ${PART2MOUNT}/boot/angstrom_version.txt
 
 echo "Initialize interfaces"

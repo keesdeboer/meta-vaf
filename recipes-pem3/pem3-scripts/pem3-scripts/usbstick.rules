@@ -1,0 +1,1 @@
+ACTION=="add",KERNEL=="sd?1",SUBSYSTEMS=="block",ENV{ID_TYPE}=="disk",ENV{ID_FS_TYPE}="vfat",RUN+="/usr/bin/handle_storagedevice.sh %k"

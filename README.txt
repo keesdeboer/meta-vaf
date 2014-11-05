@@ -9,18 +9,17 @@ V-static_network.service -> Replaced by /etc/init.d/network restart
 V-install libmodbus automatically
 V-set password during build
 V-modify 55-resolv.conf script -> not needed
--create necessary files for dns settings
--usb ethernet
--add /database/log partition to emmc.sh script in flasher_image
+V-create necessary files for dns settings
+-usb ethernet -> build kernel together with image
+V-add /database/log partition to emmc.sh script in flasher_image
 -versienummber
 -use full emmc for database
 -flashen / software update via usb of usb ethernet
 
 # volatiles in pem3_scripts, what is that
 # TODO:
-#-kernel rtpatch
 #-provide version check
-
-#-add sqlite3
+#-kernel watchdog nowayout meebouwen in yocto/OE (zie defconfig file in deze feed)
+#-add sqlite3?
 -create .img
 

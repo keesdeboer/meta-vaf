@@ -7,7 +7,9 @@ inherit systemd
 SRC_URI = "file://pem3.service \
 					 file://dns_update.service \
            file://sdcard.rules \
+           file://usbstick.rules \
            file://software_update.sh \
+           file://handle_storagedevice.sh \
 					 file://am335x-bone.dtb \
 					 file://am335x-boneblack.dtb \
 					"
@@ -43,7 +45,9 @@ FILES_${PN} = "${base_libdir}/systemd/system/pem3.service \
 							 ${base_libdir}/systemd/system/dns_update.service \
 							 ${base_libdir}/systemd/system/emmc.service \
                ${bindir}/software_update.sh \
+               ${bindir}/handle_storagedevice.sh \
                ${sysconfdir}/udev/rules.d/sdcard.rules \
+               ${sysconfdir}/udev/rules.d/usbstick.rules \
 							 /boot/am335x-bone.dtb \
 							 /boot/am335x-boneblack.dtb \
 							 /application \
