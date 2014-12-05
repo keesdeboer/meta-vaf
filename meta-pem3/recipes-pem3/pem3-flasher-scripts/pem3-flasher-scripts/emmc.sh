@@ -16,8 +16,8 @@ BOOTMOUNT="/media/boot"
 
 HOSTARCH="$(uname -m)"
 
-MLOMD5="527711a561422e181c6443d48c2a04f7"
-UBOOTMD5="0bf6e9b75c0e633d977ee2dc968f7e91"
+MLOMD5="0c3b689b112dbf44c9bd481d23377489"
+UBOOTMD5="a653b914b44fe0373759f786061b40d5"
 UIMAGEMD5=""
 ANGSTROMMD5=""
 
@@ -56,9 +56,12 @@ else
 	ERROR="${ERROR}, no rootfs found";  
 fi
 
-#echo "Copying kernel"
-#cp /boot/uImage_vaf ${PART2MOUNT}/boot
-#ln -sf uImage_vaf ${PART2MOUNT}/boot/uImage
+echo "Copying kernel"
+rm ${PART2MOUNT}/boot/uImage
+cp /boot/uImage ${PART2MOUNT}/boot
+rm ${PART2MOUNT}/lib/modules/*
+cp /lib/modules/* ${PART2MOUNT}/lib/modules
+cp /boot/*.dtb ${PART2MOUNT}/boot
 echo ${ANGSTROM_VERSION} > ${PART2MOUNT}/boot/angstrom_version.txt
 
 echo "Initialize interfaces"

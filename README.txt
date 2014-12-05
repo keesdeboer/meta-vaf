@@ -1,33 +1,112 @@
 Author: C.S. Kwekkeboom
 Date: November 2014
 
--History
-This buildsystem is based on the angstrom setup scripts provided by https://github.com/angstrom-distribution/setup-scripts/
-The choice has been made to use the v2012.12-yocto1.3 branch, because in the previous flasher image (preinstalled in the early beaglebone blacks in the beginning of the PEM3 project) is based on this branch.
+###################################################################################################
+History
+###################################################################################################
 
--How is this build?
+This buildsystem is based on the angstrom setup scripts provided by https://github.com/angstrom-distribution/setup-scripts/
+The choice has been made to use the v2012.12-yocto1.3 branch, because in the previous flasher image (preinstalled in the early beaglebone blacks in the beginning of the PEM3 project) is based on this branch. Using a newer branch results in using newer versions of certain libraries (e.g. libc), which in my case caused memory corruption running a precompiled version (SPU v0.3.7) of the SPU3 firmware.
+
+###################################################################################################
+How is this environment created?
+###################################################################################################
+
 1 $git clone https://github.com/angstrom-distribution/setup-scripts/
 2 $git checkout remotes/origin/angstrom-v2012.12-yocto1.3
 3 $git checkout -b addlayer
 4 Write meta-vaf layer in a seperate git repository
-5 Commit changes to addlayer branch
-6 Build kernel
+5 Add meta-vaf layer to conf/bblayers.conf and commit changes to addlayer branch
+6 Build u-boot-vaf
 7 Build console-image-vaf
 8 Build flasher-image-vaf
-9 Use the deploy script to create a flasher sd card image
+9 Run script to run 3.14 kernel: ./build_kernel.sh
+10 Use the deploy script to create a flasher sd card image
 
 See the file installed_packages for an overview of my machine configuration
 
--Changelog
-1. Added console-image-vaf.bb and flasher-image-vaf.bb to recipes-images 
-2. Added custom kernel defconfig to recipes-kernel 
-3. Added recipes-pem3:
-	3-1. Changed /etc/fstab in base-files
-	3-2. Include libmodbus with custom RTU path in image
-	3-3. Added flasher-scripts: eMMc partition / format and eMMc populate script
-	3-4. Added pem3-scripts: pem3 service, dns service, software update scripts, software update udev rules, device tree
+###################################################################################################
+How to use
+###################################################################################################
+$MACHINE=beaglebone ./oebb.sh config beaglebone
+
+To start a build of the kernel, source the environment file and do:
+$. ~/.oe/environment-angstromv2012.12
+$bitbake virtual/kernel
+
+To build u-boot
+$bitbake u-boot-vaf
+
+To build the deployment image:
+$bitbake console-image-vaf
+
+To build the flasher image:
+$bitbake flasher-image-vaf
+
+To build custom kernel (3.14.25 with VAF defconfig)
+$./build_kernel.sh
+
+Prepare an sd card with two partitions
+$./deploy.sh -p /dev/sd[x] 
+
+Deploy the image to a micro-SD card (drive x) using
+$./deploy.sh -c /dev/sd[x] 
+
+Extract an .img file from the sd card for further deployment
+$dd if=/dev/sdd of=flasher_image.img bs=1M count=???
+
+Extra:
+$git pull
+$./oebb.sh update
+
+###################################################################################################
+How to fetch sources for offline usage
+###################################################################################################
+
+bitbake -c fetchall u-boot-vaf
+bitbake -c fetchall gcc-linaro-4.7
+bitbake -c fetchall chatter-sender
+
+#bitbake -c fetchall virtual/kernel
+#bitbake -c fetchall console-image-vaf
+#bitbake -c fetchall flasher-image-vaf
+#bitbake -c fetchall meta-ros
+
+Add BB_NO_NETWORK = "1" to local.conf
+Remove meta-ros layer from layers.conf
+
+bitbake u-boot-vaf
+bitbake virtual/kernel
+bitbake console-image-vaf
+bitbake flasher-image-vaf
+
+########################################################################
+Tricks:
+########################################################################
+Really rebuild (sometimes build does not incorporate file changes)
+$bitbake -c cleansstate <recipe>
+$bitbake -f -c compile <recipe>
+$bitbake <recipe>
+
+
+
+###################################################################################################
+Changelog
+###################################################################################################
+
+1. Added console-image-vaf.bb and flasher-image-vaf.bb to recipes-images (see https://github.com/kkwekkeboom/meta-vaf/tree/csk_layer/recipes-images/angstrom)
+2. Added custom kernel defconfig to recipes-kernel (see https://github.com/kkwekkeboom/meta-vaf/tree/csk_layer/recipes-kernel/linux)
+3. Added recipes-pem3: (see https://github.com/kkwekkeboom/meta-vaf/tree/csk_layer)
+	3-1. Changed /etc/fstab in base-files (see https://github.com/kkwekkeboom/meta-vaf/tree/csk_layer/recipes-pem3/base-files)
+	3-2. Include libmodbus with custom RTU path in image (see https://github.com/kkwekkeboom/meta-vaf/tree/csk_layer/recipes-pem3/libmodbus and https://github.com/kkwekkeboom/libmodbus/tree/rtupatch)
+	3-3. Added flasher-scripts: eMMc partition / format and eMMc populate script (see https://github.com/kkwekkeboom/meta-vaf/tree/csk_layer/recipes-pem3/pem3-flasher-scripts)
+	3-4. Added pem3-scripts: pem3 service, dns service, software update scripts, software update udev rules, device tree (see https://github.com/kkwekkeboom/meta-vaf/tree/csk_layer/recipes-pem3/pem3-scripts)
+4. Added u-boot with patch to set bootdelay to zero (see https://github.com/kkwekkeboom/u-boot-vaf/tree/bootdelay_patches)
 	
--Tested:
+
+###################################################################################################
+Tested:
+###################################################################################################
 V-pem3_0.3.8 runs
 V-Added /application and /database  and /database/log directories to deployment image
 V-pem3.service
@@ -44,37 +123,11 @@ V-usb ethernet works
 V-kernel option WATCHDOG_NOWAYOUT=y enabled
 V-Full eMMc used for /database
 V-flashen / software update via sdcard / usb mogelijk
--versienummber
-#-provide version check
+V-versienummber
+V-u-boot integreren in build
+V-Ethernet bug fixed by upgrading to kernel version 3.14.25-ti-r37 (ifdown ifup cycling works now) 
 #TODO:
-#-add sqlite3?
 #-create .img
+#-add beaglebone serial port drivers for windows to BBB?
 
-
--How to use
-
-$MACHINE=beaglebone ./oebb.sh config beaglebone
-
-To start a build of the kernel, source the environment file and do:
-$. ~/.oe/environment-angstromv2012.12
-$bitbake virtual/kernel
-
-To build the deployment image:
-$bitbake console-image-vaf
-
-To build the flasher image:
-$bitbake flasher-image-vaf
-
-Prepare an sd card with two partitions
-$./deploy.sh -p /dev/sd[x] 
-
-Deploy the image to a micro-SD card (drive x) using
-$./deploy.sh -c /dev/sd[x] 
-
-Extract an .img file from the sd card for further deployment
-$dd if=/dev/sdd of=flasher_image.img bs=1M count=???
-
-Extra:
-$git pull
-$./oebb.sh update
 
