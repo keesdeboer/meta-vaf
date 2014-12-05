@@ -14,6 +14,7 @@ IMAGE_INSTALL += " \
 "
 ROOTFS_POSTPROCESS_COMMAND += "set_root_passwd;"
 ROOTFS_POSTPROCESS_COMMAND += "create_symlinks;"
+ROOTFS_POSTPROCESS_COMMAND += "remove_opkg;"
 
 create_symlinks() {
   #!/bin/sh
@@ -22,6 +23,10 @@ create_symlinks() {
 	ln -sf /database/interfaces ${IMAGE_ROOTFS}/etc/network/interfaces
 	ln -sf /database/zone	${IMAGE_ROOTFS}/etc/zone
 	ln -sf /database/resolv.conf	${IMAGE_ROOTFS}/etc/resolv.conf
+}
+
+remove_opkg() {
+	rm -r ${IMAGE_ROOTFS}/var/lib/opkg
 }
 
 #created pwd using $openssl passwd -1 -salt xyz  yourpass

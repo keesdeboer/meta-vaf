@@ -16,8 +16,8 @@ BOOTMOUNT="/media/boot"
 
 HOSTARCH="$(uname -m)"
 
-MLOMD5="0c3b689b112dbf44c9bd481d23377489"
-UBOOTMD5="a653b914b44fe0373759f786061b40d5"
+MLOMD5="b150d6b7d5ab4522063ddfb5043c22fe"
+UBOOTMD5="1f2ee90acf7fd5fa7aedc4025b5c02b1"
 UIMAGEMD5=""
 ANGSTROMMD5=""
 
@@ -42,8 +42,9 @@ mount /dev/mmcblk0p1 ${BOOTMOUNT} -o async,noatime
 mkdir -p $PART3MOUNT/log
 
 echo "Copying uImage + MLO + uEnv.txt files"
-cp ${BOOTMOUNT}/MLO ${BOOTMOUNT}/uEnv.txt ${BOOTMOUNT}/u-boot.img ${PART1MOUNT}
+cp ${BOOTMOUNT}/MLO ${BOOTMOUNT}/u-boot.img ${PART1MOUNT}
 echo ${ANGSTROM_VERSION} > ${PART1MOUNT}/angstrom_version.txt
+cp /build/uEnv.txt ${PART1MOUNT}
 
 sync
 blockdev --flushbufs /dev/mmcblk1
@@ -59,9 +60,9 @@ fi
 echo "Copying kernel"
 rm ${PART2MOUNT}/boot/uImage
 cp /boot/uImage ${PART2MOUNT}/boot
-rm ${PART2MOUNT}/lib/modules/*
-cp /lib/modules/* ${PART2MOUNT}/lib/modules
-cp /boot/*.dtb ${PART2MOUNT}/boot
+#rm ${PART2MOUNT}/lib/modules/*
+#cp /lib/modules/* ${PART2MOUNT}/lib/modules
+cp /build/*.dtb ${PART2MOUNT}/boot
 echo ${ANGSTROM_VERSION} > ${PART2MOUNT}/boot/angstrom_version.txt
 
 echo "Initialize interfaces"

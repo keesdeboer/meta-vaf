@@ -37,6 +37,12 @@ $bitbake virtual/kernel
 To build u-boot
 $bitbake u-boot-vaf
 
+Make sure the MD5SUM for u-boot and MLO match:
+$md5sum build/tmp-angstrom_v2013_06-eglibc/deploy/images/beaglebone/MLO
+$md5sum build/tmp-angstrom_v2013_06-eglibc/deploy/images/beaglebone/u-boot.img
+$grep "MD5" sources/meta-vaf/meta-pem3/recipes-pem3/pem3-flasher-scripts/pem3-flasher-scripts/emmc.sh
+Verify the checksums match!!!!
+
 To build the deployment image:
 $bitbake console-image-vaf
 
@@ -52,8 +58,11 @@ $./deploy.sh -p /dev/sd[x]
 Deploy the image to a micro-SD card (drive x) using
 $./deploy.sh -c /dev/sd[x] 
 
-Extract an .img file from the sd card for further deployment
-$dd if=/dev/sdd of=flasher_image.img bs=1M count=???
+Extract an .img file from the sd card for further deployment. Use fdisk to determine the size of the partitions
+$sudo fdisk /dev/sdd
+$p
+Find last block of the second partition (in my case 273104)
+$dd if=/dev/sdd of=flasher_image.img bs=512 count=273104
 
 Extra:
 $git pull
