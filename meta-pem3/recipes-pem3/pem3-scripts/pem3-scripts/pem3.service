@@ -1,0 +1,11 @@
+[Unit]
+Description=Start pem3 application
+ConditionPathExists=|/application/pem3/
+
+[Service]
+Type=simple
+WorkingDirectory=/application/pem3
+ExecStart=/usr/bin/node Application.js
+
+[Install]
+WantedBy=multi-user.target
