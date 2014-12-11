@@ -1,7 +1,7 @@
 [Unit]
 Description=Update DNS server when interface changes
-BindsTo=connman.service
-After=connman.service
+BindsTo=network.service
+After=network.service
 ConditionPathExists=|/application/pem3
 
 [Service]

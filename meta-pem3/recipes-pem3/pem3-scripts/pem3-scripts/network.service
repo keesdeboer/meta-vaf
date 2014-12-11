@@ -1,0 +1,14 @@
+[Unit]
+Description=Network connectivity eth0
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/ifup eth0
+ExecStop=/sbin/ifdown eth0
+RemainAfterExit=yes
+Type=oneshot
+Description=Start networking services
+
+[Install]
+WantedBy=multi-user.target

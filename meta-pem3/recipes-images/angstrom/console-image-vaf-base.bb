@@ -8,7 +8,7 @@ IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 DISTRO_UPDATE_ALTERNATIVES ??= ""
 #ROOTFS_PKGMANAGE_PKGS ?= '${@base_conditional("ONLINE_PACKAGE_MANAGEMENT", "none", "", "${ROOTFS_PKGMANAGE} ${DISTRO_UPDATE_ALTERNATIVES}", d)}'
 
-CONMANPKGS ?= "connman connman-angstrom-settings connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd"
+CONMANPKGS ?= "connman connman-angstrom-settings connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd connman-tests"
 CONMANPKGS_libc-uclibc = ""
 
 EXTRA_MACHINE_IMAGE_INSTALL_ti33x = "gadget-init"
@@ -17,9 +17,9 @@ IMAGE_INSTALL += " \
 	angstrom-packagegroup-boot \
 	dropbear \
 	bash \
+	${CONMANPKGS} \ 
 	timestamp-service \
 	packagegroup-basic \
-	${CONMANPKGS} \
 	gadget-init \
 	kernel-modules \
 	kernel-module-gadgetfs \
@@ -28,6 +28,7 @@ IMAGE_INSTALL += " \
 	kernel-module-g-ether \
 	usbinit \
 "
+#${CONMANPKGS} \
 #	kernel-module-g-file-storage \
 #	
 #	kernel-modules dtc \

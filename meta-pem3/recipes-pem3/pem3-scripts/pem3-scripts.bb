@@ -12,6 +12,7 @@ SRC_URI = "file://pem3.service \
            file://handle_storagedevice.sh \
 					 file://am335x-bone.dtb \
 					 file://am335x-boneblack.dtb \
+					 file://network.service \
 					"
 
 do_install() {
@@ -38,11 +39,12 @@ do_install() {
 
 #NATIVE_SYSTEMD_SUPPORT = "1"
 SYSTEMD_PACKAGES = "${PN}-systemd"
-SYSTEMD_SERVICE = "pem3.service dns_update.service"
+SYSTEMD_SERVICE = "pem3.service dns_update.service network.service"
 SYSTEMD_AUTO_ENABLE = "enable"
 
 FILES_${PN} = "${base_libdir}/systemd/system/pem3.service \
 							 ${base_libdir}/systemd/system/dns_update.service \
+							 ${base_libdir}/systemd/system/network.service \
 							 ${base_libdir}/systemd/system/emmc.service \
                ${bindir}/software_update.sh \
                ${bindir}/handle_storagedevice.sh \
