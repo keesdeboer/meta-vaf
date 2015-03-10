@@ -17,7 +17,6 @@ IMAGE_INSTALL += " \
 	angstrom-packagegroup-boot \
 	dropbear \
 	bash \
-	${CONMANPKGS} \ 
 	timestamp-service \
 	packagegroup-basic \
 	gadget-init \

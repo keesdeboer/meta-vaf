@@ -37,7 +37,6 @@ if [ -z "$MD5ERROR" ]; then
 	fi
 	ln -sf $FIRMWARE_DESTINATION /application/pem3
 	systemctl start pem3.service
-	systemctl restart dns_update.service
 	if [ -n "$OLD_VERSION" ]; then
 		if [ "$OLD_VERSION" != "$FIRMWARE_DESTINATION" ]; then
 			rm -r $OLD_VERSION
