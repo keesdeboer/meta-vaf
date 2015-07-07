@@ -8,9 +8,9 @@ SECTION = "libs"
 LICENSE = "LGPLv2.1+"
 LIC_FILES_CHKSUM = "file://COPYING.LESSER;md5=4fbd65380cdd255951079008b364516c"
 
-SRC_URI = "https://github.com/kkwekkeboom/libmodbus/archive/rtupatch.zip"
-SRCREV = "d5bd3fdfd7d7dbfd80bb4ecb80c278f892bd8cb5"
+SRC_URI = "https://github.com/kkwekkeboom/libmodbusvaf/archive/v1.0.0.zip"
+SRCREV = "e5483044e6539af010afd75f00111a0a5a4233f8"
 
 inherit autotools pkgconfig
-SRC_URI[md5sum] = "84f8a2e2c82586905aea4a44a226662c"
-SRC_URI[sha256sum] = "52e5cc5aece4b57b46990246a2d93c88b8923c024f76f813b484fba043ca68f2"
+SRC_URI[md5sum] = "dd3ea991baebdae08a07c2bcc2bc065b"
+SRC_URI[sha256sum] = "5ca48816476c69d05dfe3e5b8ad55d219a5590868097177b1db77515b9fef733"
