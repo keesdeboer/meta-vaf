@@ -6,7 +6,7 @@
 
 export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
 
-ANGSTROM_VERSION="angstrom_version=0.1.0"
+ANGSTROM_VERSION="angstrom_version=2.2"
 PART1MOUNT="/media/1"
 PART2MOUNT="/media/2"
 #add two extra application specificpartitions

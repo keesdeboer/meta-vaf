@@ -11,6 +11,7 @@ DISTRO_UPDATE_ALTERNATIVES ??= ""
 CONMANPKGS ?= "connman connman-angstrom-settings connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd connman-tests"
 CONMANPKGS_libc-uclibc = ""
 
+EXTRA_MACHINE_IMAGE_INSTALL ?= ""
 EXTRA_MACHINE_IMAGE_INSTALL_ti33x = "gadget-init"
 
 IMAGE_INSTALL += " \
@@ -19,22 +20,16 @@ IMAGE_INSTALL += " \
 	bash \
 	timestamp-service \
 	packagegroup-basic \
+	kernel-modules dtc \
 	gadget-init \
-	kernel-modules \
-	kernel-module-gadgetfs \
-	kernel-module-g-mass-storage \
-	kernel-module-g-serial \ 
-	kernel-module-g-ether \
-	usbinit \
+	usbutils \
+	${EXTRA_MACHINE_IMAGE_INSTALL} \
 "
 #${CONMANPKGS} \
-#	kernel-module-g-file-storage \
-#	
-#	kernel-modules dtc \
-#RDEPENDS += " \
-	#kernel-module-hci-usb \
-#	kernel-module-hci-uart \
-	#"
+#		usbinit \ -> interferes with gadget-init
+#	kernel-module-g-ether \ -> interferes with gadget-init
+#	kernel-module-g-serial \ -> redundant with gadget-init
+
 BAD_RECOMMENDATIONS = "avahi-daemon avahi-autoipd"
 
 
