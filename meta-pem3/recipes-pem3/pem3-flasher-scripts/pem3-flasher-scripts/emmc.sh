@@ -6,7 +6,7 @@
 
 export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
 
-ANGSTROM_VERSION="angstrom_version=0.1.0"
+ANGSTROM_VERSION="angstrom_version=2.2"
 PART1MOUNT="/media/1"
 PART2MOUNT="/media/2"
 #add two extra application specificpartitions
@@ -16,8 +16,8 @@ BOOTMOUNT="/media/boot"
 
 HOSTARCH="$(uname -m)"
 
-MLOMD5="b150d6b7d5ab4522063ddfb5043c22fe"
-UBOOTMD5="1f2ee90acf7fd5fa7aedc4025b5c02b1"
+MLOMD5="610e4a6ea9d96d952df73001b48049be"
+UBOOTMD5="d0bba3b613a8e261e94d4b57e1493a52"
 UIMAGEMD5=""
 ANGSTROMMD5=""
 

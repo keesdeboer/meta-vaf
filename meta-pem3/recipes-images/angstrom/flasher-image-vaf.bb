@@ -9,6 +9,7 @@ IMAGE_INSTALL += " \
 	bash \
 	bc \
 	pem3-flasher-scripts \
+	libmodbusvaf \
 	e2fsprogs-mke2fs \
 	dosfstools \
 	tar \
